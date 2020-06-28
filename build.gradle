@@ -1,0 +1,64 @@
+plugins {
+    id 'java-library'
+    id 'idea'
+    id 'checkstyle'
+    id "org.springframework.boot" version '2.1.2.RELEASE'
+    id "com.gorylenko.gradle-git-properties" version "1.4.21"
+}
+
+apply plugin: 'io.spring.dependency-management'
+
+
+repositories {
+    maven { url 'http://maven.aliyun.com/nexus/content/groups/public/' }
+}
+
+group = 'com.backUtils'
+version = '0.0.1-SNAPSHOT'
+
+
+dependencies {
+    implementation 'com.google.guava:guava:23.0'
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+
+    compileOnly 'org.projectlombok:lombok:1.18.0'
+    annotationProcessor 'org.projectlombok:lombok:1.18.0'
+    annotationProcessor 'org.mapstruct:mapstruct-processor:1.2.0.Final'
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation "org.junit.jupiter:junit-jupiter-api:5.2.0"
+    testRuntime "org.junit.jupiter:junit-jupiter-engine:5.2.0"
+    testImplementation 'org.mockito:mockito-junit-jupiter:2.21.0'
+}
+
+checkstyle {
+    toolVersion '8.1'
+    ignoreFailures = false
+    configFile file("$project.rootDir/config/checkstyle/checkstyle.xml")
+    sourceSets = [sourceSets.main]
+
+    checkstyleMain {
+        source = 'src/main/java'
+    }
+    checkstyleMain.exclude ''
+}
+
+
+copy {
+    from "./config/githooks/"
+    into "./.git/hooks/"
+    fileMode 0755
+}
+
+springBoot {
+    buildInfo()
+}
+
+
+bootJar {
+    manifest {
+        attributes('Implementation-Title': project.name,
+                'Implementation-Version': project.version)
+    }
+}
